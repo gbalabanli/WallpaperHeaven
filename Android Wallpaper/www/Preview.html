@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+<meta name='viewport' content='target-densitydpi=device-dpi,  initial-scale=1.0, maximum-scale=1.0' />
+
+<script src="javascript/script.min.js"></script>
+
+<link href='css/masterStyle.css' rel='stylesheet' id="stylesheet1" />
+<link rel="stylesheet" href="css/style_nav.css">
+
+<script type="text/javascript" charset="utf-8" src="javascript\cordova.js"></script>
+
+<script src="javascript/spin.js"></script>
+<script src="javascript/spin.min.js"></script>
+
+
+
+<script type="text/javascript" charset="utf-8" src="javascript\test.js"></script>
+<script type="text/javascript" charset="utf-8" src="javascript\AdMobPlugin.js"></script>
+<script type="text/javascript" charset="utf-8" src="javascript\app_functions.js"></script>
+<script type="text/javascript" charset="utf-8" src="javascript\fastClick.js"></script>
+
+<script type="text/javascript">
+
+imageNumber = -1; // means no image selected yet after 0 it means image selected
+rootURL = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/960x854/';
+XML_FILE_SHUFFLED = 'wallpapersV8_SHUFFLED_ALL_960x854.xml?rand='+Math.random(); //Requested xml File name
+XML_FILE_CATHEGORY= 'wallpapersV8_CATHEGORY_960x854.xml?rand='+Math.random();
+fileName = '';
+url = '';
+NUM_OF_IMG_PER_PAGE = 4;
+SPEED = 260;
+FADE_SPEED = 5;
+FADE_FREQ = 10;
+var wallpapers_shuffled;
+var cathegorySelected = false;
+var CURRENT_VERSION;
+var opts = {
+				  lines: 13, // The number of lines to draw
+				  length: 7, // The length of each line
+				  width: 4, // The line thickness
+				  radius: 10, // The radius of the inner circle
+				  corners: 1, // Corner roundness (0..1)
+				  rotate: 0, // The rotation offset
+				  color: '#FFF5F8', // #rgb or #rrggbb
+				  speed: 1, // Rounds per second
+				  trail: 60, // Afterglow percentage
+				  shadow: false, // Whether to render a shadow
+				  hwaccel: false, // Whether to use hardware acceleration
+				  className: 'spinner', // The CSS class to assign to the spinner
+				  zIndex: 2e9, // The z-index (defaults to 2000000000)
+				  top: 'auto', // Top position relative to parent in px
+				  left: 'auto' // Left position relative to parent in px
+	};
+			
+var slider3;
+var spinner1; 
+var spinner2;
+var spinner3;
+var spinner4;
+var spinnerMain;
+
+var cathegoryArray = [];
+var cathegoryCount = 0;
+
+
+
+
+
+<!-- THE MAIN FUNCTION, NEEDS NO CHANGES --> 
+function shuffle(array) {
+    var counter = array.length, temp, index;
+
+    // While there are elements in the array
+    while (counter--) {
+        // Pick a random index
+        index = (Math.random() * counter) | 0;
+
+        // And swap the last element with it
+        temp = array[counter];
+        array[counter] = array[index];
+        array[index] = temp;
+    }
+
+    return array;
+}
+function goToPage(pageNum){
+	//$.mobile.loading( 'show' );
+	clearAll();
+	target = document.getElementsByTagName("body")[0];
+	spinnerMain.spin(target);
+	lineLog("go to page: " + pageNum);
+	
+	if( (pageNum * 4) > wallpapers.length + 4 ){
+		lineLog("ERROR: IN PAGE NUMBER " + pageNum );
+		pageNum = 1;		
+	}
+		
+	
+	imgToShow = (pageNum * 4) - 4; // one page has 4 images so we multiply it by 4!!!! 
+	showNextImage(1);								//imgToshow is first img of the page!!!!!!!!!!!1
+		
+	imgToShow = (pageNum * 4) - 3;
+	showNextImage(2);
+	
+	imgToShow = (pageNum * 4) - 2;
+	showNextImage(3);
+	
+	imgToShow = (pageNum * 4) - 1;
+	showNextImage(4);
+	
+	pageNumber = pageNum;
+
+	
+
+}
+
+function nextPage(){
+	clearAll();
+	//$.mobile.loading( 'show' ) ;
+	pageNumber++; 
+	var d = new Date();
+	randomNumber = d.getTime() % 40;
+	//console.log("random number:" + randomNumber);
+	if( randomNumber == 6){
+		doIntAdmob();
+	}
+	//lineLog("page number");
+	if( (pageNumber * 4) >= wallpapers.length + 4 ){
+		lineLog("PAGING IS AT THE START PAGE");
+		pageNumber = 1;
+	}
+		
+	
+	imgToShow = (pageNumber * 4) - 4; // one page has 4 images so we multiply it by 4!!!! 
+	showNextImage(1);								//imgToshow is first img of the page!!!!!!!!!!!1
+		
+	imgToShow = (pageNumber * 4) - 3;
+	showNextImage(2);
+	
+	imgToShow = (pageNumber * 4) - 2;
+	showNextImage(3);
+	
+	imgToShow = (pageNumber * 4) - 1;
+	showNextImage(4);
+	
+	
+}
+
+function previousPage(){
+	clearAll();
+	
+	target = document.getElementsByTagName("body")[0];
+	spinnerMain.spin(target);
+	
+	//$.mobile.loading( 'show' ) ;
+	pageNumber--; 
+
+	var d = new Date();
+	randomNumber = d.getTime() % 40;
+	//console.log("random number:" + randomNumber);
+	if( randomNumber == 6){
+		doIntAdmob();
+	}
+	
+		
+	if( pageNumber <= 0 ){
+		numOfImg = wallpapers.length; 
+		if( (numOfImg % 4) == 0){
+			pageNumber = numOfImg / 4;
+			
+		}
+		else{
+			pageNumber = (numOfImg / 4) + 1;
+			pageNumber = Math.floor(pageNumber);
+		}
+	}
+	
+	lineLog("previous page number is " + pageNumber);	
+
+	imgToShow = (pageNumber * 4) - 4; // one page has 4 images so we multiply it by 4!!!! 
+	showNextImage(1);								//imgToshow is first img of the page!!!!!!!!!!!1
+		
+	imgToShow = (pageNumber * 4) - 3;
+	showNextImage(2);
+	
+	imgToShow = (pageNumber * 4) - 2;
+	showNextImage(3);
+	
+	imgToShow = (pageNumber * 4) - 1;
+	showNextImage(4);
+}
+
+function clearImage(i){
+	lineLog("clear img is called for img "+i);
+	
+	var element = document.getElementById('selected_img'+i);
+	element.innerHTML =  ""; 
+		
+}
+
+function clearAll(){
+	
+	window.stop();
+	
+	for(var i = 1;i <= NUM_OF_IMG_PER_PAGE;i++){
+		clearImage(i);
+	}
+	
+}
+
+
+
+function showNextImage(i){
+	
+	target = document.getElementsByTagName("body")[0]; 
+	spinnerMain.spin(target);
+	
+	if(imgToShow  < wallpapers.length)
+	{	
+		var imgObj=new Image();
+			
+		lineLog("sayfadaki "+i+"inci resim");
+		
+		if(i == 1){
+			imgObj.onerror=function()
+			{	
+				if(i == 1){			
+					spinnerMain.stop();
+				}
+				alert("An error occured while loading image, please check your internet connection!");
+			}
+		}
+	
+		imgObj.onload=function()
+		{	
+			if(i == 1){		
+				
+				spinnerMain.stop();
+			}
+			var element = document.getElementById('selected_img'+i);
+			element.innerHTML =  "<img id='preImg"+i+"'border='0' src='"+this.src +"' width='"+ document.getElementById('container1').style.width + "' height='"+ document.getElementById('container1').style.height +"' />"; 
+		/*	imageId = 'preImg'+i;
+			image = document.getElementById(imageId);
+			setOpacity(image, 0);
+			image.style.visibility = 'visible';
+			fadeIn(imageId,0);*/
+			
+		}
+	
+		//console.log("wallpaper preview source:"+getWallpaperName(imgToShow));
+		imgObj.src = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/preview/' + getWallpaperName(imgToShow);
+	/*	var element = document.getElementById('selected_img'+i);
+		element.innerHTML =  "<img id='preImg"+i+"'border='0' style='visibility:hidden' src='"+ imgList[imgToShow] +"' width='300' height='100' />"; */
+		lineLog("if in icindeyim "+imgToShow);
+
+	 	
+	}
+	else {
+		lineLog("no image is found! for screen "+ pageNumber + " of img "+i+" image number is "+imgToShow);
+		clearImage(i);
+		
+		
+	}	
+	
+}
+
+function initFolderNames() {
+	/*if (window.devicePixelRatio == 1.5) {
+		rootURL = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/960x800/';
+		XML_FILE = 'wallpapers1_960x800.xml';
+		
+	} 
+	else if(window.devicePixelRatio == 1)
+	{
+		rootURL = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/640x480/';
+		XML_FILE = 'wallpapers1_640x480.xml';
+		lineLog("medium size");
+	}
+	else if(window.devicePixelRatio == 2)
+	{	
+		rootURL = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/960x854/';
+		XML_FILE = 'wallpapers1_960x854.xml';
+		lineLog("xhdpi size");
+	}
+	else if (window.devicePixelRatio == 0.75) {
+		lineLog("This is a low-density screen height in pixels" + BANNER_HEIGHT);
+	}*/
+	
+	lineLog("root and file name:"+rootURL + " xml:"+XML_FILE_SHUFFLED);
+	
+	
+}
+
+function XMLReq(xmlURL,cathegroyFlag){
+	
+	initFolderNames();
+	if (window.XMLHttpRequest)
+	 {// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	 }
+	else
+	 {// code for IE6, IE5
+	  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	 }
+	xmlhttp.open("GET",xmlURL,false);
+	xmlhttp.send();
+	xmlDoc=xmlhttp.responseXML; 
+	if(cathegroyFlag){
+		cathegories = xmlDoc.getElementsByTagName("CATHEGORY");
+	}
+	else{
+		wallpapers=xmlDoc.getElementsByTagName("WALLPAPER");
+		try{
+			APP_VERSION = xmlDoc.getElementsByTagName("APP_VERSION")[0].childNodes[0].nodeValue;
+		}catch(err){
+			console.log("xml req for app version failed!");
+		}
+		wallpapers_shuffled = wallpapers;
+	}
+	
+	/*for(i=0;i<wallpapers.length;i++){
+		console.log("wp name i:"+i+" : " + getWallpaperName(i));
+	}
+	for(ii=0;ii<cathegories.length;ii++){
+		console.log("--------------CATHEGORY:"+ii+" " + getCathegoryName(ii)+"-----------------------");
+		len = getCathegoryWallpaperLength(ii);
+		console.log("cathegory:"+ii+ " length:"+len);
+		for(j=0;j<len;j++)
+		{
+			name = getCathegoryWallpapersName(ii,j);
+			console.log("cathegory i:"+ii+" j:"+j+ " length:"+len+ " name:"+name);
+		}
+	}*/
+	
+}
+
+function getWallpaperURL(i)// kullanilmiyor ama url i'ninci urlyi verir
+{
+	try{
+		url=(wallpapers[i].getElementsByTagName("URL")[0].childNodes[0].nodeValue);
+	}catch(err){
+		console.log("wallpaper url not found:"+i);
+	}
+	return url;
+
+}
+function getCathegoryWallpaperLength(i)// kullanilmiyor ama url i'ninci urlyi verir
+{
+	try{
+		CATHEGORIEZED_WPS=(cathegories[i].getElementsByTagName("WALLPAPER").length);
+	}catch(err){
+		console.log("cathegory not found:i:"+i);
+	}
+	return CATHEGORIEZED_WPS;
+}
+function getCathegoryWallpapers(i)// kullanilmiyor ama url i'ninci urlyi verir
+{
+	try{
+		CATHEGORIEZED_WPS=(cathegories[i].getElementsByTagName("WALLPAPER"));
+	}catch(err){
+		console.log("cathegory not found:i:"+i);
+	}
+	return CATHEGORIEZED_WPS;
+
+}
+function getCathegoryWallpapersName(i,j)//filename kategorinin i'ninci filename i verir
+{
+	try{
+		CATHEGORIEZED_WPS=(cathegories[i].getElementsByTagName("FILENAME")[j].childNodes[0].nodeValue);
+	}catch(err){
+		console.log("cathegory filename not found:i:"+i);
+	}
+	return CATHEGORIEZED_WPS;
+
+}
+function getCathegoryName(i)// i ninci kategoriyi verir
+{
+	try{
+		CATHEGORIEZED_WPS=(cathegories[i].getAttribute('title'));
+	}catch(err){
+		console.log("cathegory filename not found:i:"+i);
+	}
+	return CATHEGORIEZED_WPS;
+
+}
+
+function getWallpaperName(i)
+{
+    try{
+		fileName=(wallpapers[i].getElementsByTagName("FILENAME")[0].childNodes[0].nodeValue);
+	}catch(err){
+		console.log("wallpaper name not found:"+i);
+	}
+	return fileName;
+}
+function getWallpaperCathegory(i)
+{	
+	try
+	{
+		CATHEGORY=(wallpapers[i].getElementsByTagName("CATHEGORY")[0].childNodes[0].nodeValue);
+	}catch(err){
+		console.log("wallpaper cathegory not found:"+i);
+	}
+	return CATHEGORY;
+}
+ 
+function setVar(num){
+	target = document.getElementsByTagName("body")[0];
+	spinnerMain.spin(target);		
+	lineLog("page number in setVar: " + pageNumber + " set var variable " + num)
+	var imgNum = (pageNumber  * 4) - ( 4 - num );
+	lineLog("setting variable: " + imgNum);
+	window.localStorage.setItem("selectedImg", imgNum);
+	window.localStorage.setItem("pageNumber", pageNumber);
+	//BORA
+	
+
+	window.location="MainViewer.html";
+}
+function right(){
+
+	 slider3.slide(2,SPEED);
+	 //window.setTimeout(reset,500);		
+	}
+function left(){	
+	slider3.slide(0,SPEED);
+	//window.setTimeout(reset,500);
+
+			
+	}
+function reset(){
+		
+	slider3.slide(1,0);
+}
+//sliding + nextimage
+function nextView(){
+	lineLog("cok erkeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeen1");
+	nextPage();
+}
+//sliding + previmage
+function prevView(){
+	lineLog("cok erkeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeen2");
+	previousPage();
+}
+
+function setOpacity(obj, opacity) {
+  opacity = (opacity == 100)?99.999:opacity;
+  
+  // IE/Win
+  obj.style.filter = "alpha(opacity:"+opacity+")";
+  
+  // Safari<1.2, Konqueror
+  obj.style.KHTMLOpacity = opacity/100;
+  
+  // Older Mozilla and Firefox
+  obj.style.MozOpacity = opacity/100;
+  
+  // Safari 1.2, newer Firefox and Mozilla, CSS3
+  obj.style.opacity = opacity/100;
+}
+
+function fadeIn(objId,opacity) {
+  if (document.getElementById) {
+    obj = document.getElementById(objId);
+    if (opacity <= 100) {
+      setOpacity(obj, opacity);
+      opacity += FADE_SPEED;
+      window.setTimeout("fadeIn('"+objId+"',"+opacity+")", FADE_FREQ);
+    }
+  }
+}
+
+function getScreenSize(){
+	var WIDTH = screen.width;
+	var HEIGHT = screen.height;
+}
+
+function setDesignSize(){
+	
+	var DENSITY_RATIO = window.devicePixelRatio ;
+	var BANNER_HEIGHT = 50 * DENSITY_RATIO;
+	var BUTTON_HEIGHT = 30 * DENSITY_RATIO; //dummy burasi css'den alinip set edilecek yani imajin boyu kadar olacak
+	var BUTTON_WIDTH  = 40 * DENSITY_RATIO;
+	
+	var SCREEN_HEIGHT = screen.height; 
+	var WIDTH = screen.width ;
+	var HEIGHT = SCREEN_HEIGHT - BANNER_HEIGHT - BUTTON_HEIGHT;
+
+	
+	
+	lineLog("HEIGHT "		 + HEIGHT        + 
+			" WIDTH "		 + WIDTH         + 	
+			" BANNERSIZE: "  + BANNER_HEIGHT +
+			" BUTTON_HEIGHT "+ BUTTON_HEIGHT +
+			" screen.height "+ screen.height +
+			" screen.width " + screen.width); 
+	
+	/*if (window.devicePixelRatio == 1.5) {
+		alert("This is a high-density screen and banner height in pixels" + BANNER_HEIGHT);
+	} 
+	else if(window.devicePixelRatio == 1)
+	{
+		alert("medium size");
+	}
+	else if(window.devicePixelRatio == 2)
+	{
+		alert("xhdpi size");
+	}
+	else if (window.devicePixelRatio == 0.75) {
+		alert("This is a low-density screen height in pixels" + BANNER_HEIGHT);
+	}*/
+	
+	temp1 =Math.round(0.5 * WIDTH);
+	temp2 =Math.round(0.5 * HEIGHT);
+	
+	for(i=1;i<5;i++)
+	{
+		document.getElementById('container'+i).style.width =  temp1 +'px';
+		document.getElementById('container'+i).style.height = temp2 +'px';
+	}
+	lineLog("WIDTH  container1 "+ document.getElementById('container1').style.width);
+	lineLog("HEIGHT container1 "+ document.getElementById('container1').style.height);
+	
+	temp1 =Math.round(BUTTON_WIDTH);
+	temp2 =Math.round(BUTTON_HEIGHT);
+	
+	document.getElementById('leftButton').style.width =  temp1 +'px';
+	document.getElementById('leftButton').style.height = temp2 +'px';
+	
+	document.getElementById('rightButton').style.width =  temp1 +'px';
+	document.getElementById('rightButton').style.height = temp2 +'px';
+	
+	
+}
+
+
+
+function setDesignSizeNew(){
+	
+	var DENSITY_RATIO = window.devicePixelRatio ;
+	var BANNER_HEIGHT = 50 * DENSITY_RATIO;
+	var BUTTON_HEIGHT = 30 * DENSITY_RATIO;   //dummy burasi css'den alinip set edilecek yani imajin boyu kadar olacak
+	var BUTTON_WIDTH  = 40 * DENSITY_RATIO; 
+	var SCREEN_HEIGHT = window.innerHeight ; 
+	var WIDTH         = window.innerWidth ;
+	
+	var TOP_NAV_BAR   = 50 * DENSITY_RATIO;
+
+	checkIfAdOnScreen();
+	checkAd = window.localStorage.getItem("checkAd");
+	
+	//console.log("checkAd " + checkAd);
+	
+	var HEIGHT        = SCREEN_HEIGHT - BANNER_HEIGHT - BUTTON_HEIGHT - TOP_NAV_BAR;
+	if (checkAd == 'true'){
+		var HEIGHT        = SCREEN_HEIGHT - BUTTON_HEIGHT - TOP_NAV_BAR;
+		lineLog("checkAD vara girdi");
+		
+	}
+	else {	
+		lineLog("checkAD yoka girdi");
+		
+		var HEIGHT        = SCREEN_HEIGHT - BANNER_HEIGHT - BUTTON_HEIGHT - TOP_NAV_BAR;
+		
+	}
+	
+	
+	lineLog("HEIGHT "+ HEIGHT + " WIDTH "+ WIDTH + " BANNERHEIGHT: " +BANNER_HEIGHT+ " BUTTON_HEIGHT:" +BUTTON_HEIGHT );
+	
+	/*if (window.devicePixelRatio == 1.5) {
+		alert("This is a high-density screen and banner height in pixels" + BANNER_HEIGHT);
+	} 
+	else if(window.devicePixelRatio == 1)
+	{
+		alert("medium size");
+	}
+	else if(window.devicePixelRatio == 2)
+	{
+		alert("xhdpi size");
+	}
+	else if (window.devicePixelRatio == 0.75) {
+		alert("This is a low-density screen height in pixels" + BANNER_HEIGHT);
+	}*/
+	
+	temp1 =Math.round(0.5 * (WIDTH -12));//width - imaj margin
+	temp2 =Math.round(0.5 * (HEIGHT - 20 ));// heigh -(buton margin+imaj margin)
+	
+	for(i=1;i<5;i++)
+	{
+		document.getElementById('container'+i).style.width =  temp1 +'px';
+		document.getElementById('container'+i).style.height = temp2 +'px';
+	}
+	lineLog("WIDTH  container1 "+ document.getElementById('container1').style.width);
+	lineLog("HEIGHT container1 "+ document.getElementById('container1').style.height);
+	
+	temp1 =Math.round(BUTTON_WIDTH) ;
+	temp2 =Math.round(BUTTON_HEIGHT);
+	
+	document.getElementById('leftButton').style.width      = temp1 +'px';
+	document.getElementById('leftButton').style.height     = temp2 +'px';
+	
+	document.getElementById('leftButtonContainer').style.width      = temp1 +'px';
+	document.getElementById('leftButtonContainer').style.height     = temp2 +'px';
+	
+	
+	document.getElementById('rightButton').style.width =  temp1 +'px';
+	document.getElementById('rightButton').style.height = temp2 +'px';
+	
+	document.getElementById('rightButtonContainer').style.width      = temp1 +'px';
+	document.getElementById('rightButtonContainer').style.height     = temp2 +'px';
+	
+	document.getElementById('buttonlar').style.visibility='visible';
+	
+	temp1 = Math.round(TOP_NAV_BAR);
+	document.getElementById('cathegory_title').style.lineHeight      = temp1 +'px';
+	//document.getElementById('cathegory_title').style.fontSize       = "1.2em";
+	
+	document.getElementById('top_navbar').style.height               = temp1 +'px';
+	document.getElementById('dummy_content').style.paddingTop        = temp1 +'px';
+	document.getElementById('top_navbar').style.display              ="block";
+	
+}
+
+function initPreview(){
+	line = 'Device Name: '     + device.name     + ' ' + 
+                            'Device PhoneGap: ' + device.phonegap + ' ' + 
+                            'Device Platform: ' + device.platform + ' ' + 
+                            'Device UUID: '     + device.uuid     + ' ' + 
+                            'Device Version: '  + device.version  + ' ';
+	lineLog("DEVICE PROPERTIES: " + line);
+	apiLevel = parseFloat(device.version);
+	lineLog("API LEVEL ANDROID:" + apiLevel);
+	//if (apiLevel < 3)
+	//	setDesignSize();
+	//else
+	setDesignSizeNew();
+		
+	appStarted();
+	//callNativePluginCheckConnDoadmob("success");
+
+}
+function successCallback(){
+	//alert("ok1");
+	 window.plugins.AdMob.requestAd(
+     {
+       'isTesting': false,
+       'extras': {
+         'color_bg': 'AAAAFF',
+         'color_bg_top': 'FFFFFF',
+         'color_border': 'FFFFFF',
+         'color_link': '000080',
+         'color_text': '808080',
+         'color_url': '008000'
+       },
+     },
+     successCallback2,
+     failureCallback2
+ );
+	
+}
+function failureCallback(){alert("hata");
+}
+function failureCallback2(){alert("hata2");
+}
+function successCallback2(){
+//alert("ok2");
+}
+
+function appStarted(){	
+
+	spinnerMain= new Spinner(opts);
+	myClickElement = new NoClickDelay(document.getElementsByTagName("body")[0]);
+	//var previewPageTarget = document.getElementById("wholeSwipePage");
+	//spinnerMain.spin(previewPageTarget);
+	lineLog("xml req in appstard xml is gonna start!");
+	XMLReq(rootURL+XML_FILE_SHUFFLED,false);
+	lineLog("xml req in appstard xml is finished!");
+	//spinnerMain.stop();
+	//console.log("app_started");
+	var categoryNumber = window.localStorage.getItem("categoryNumber");
+	if(categoryNumber == null){
+		showAllWallpapers(true,0);
+	}
+	else{
+		showAllWallpapers(false,categoryNumber);
+	}
+	
+	getVersionCode();
+	//console.log("APPVERSION:"+APP_VERSION);
+	//console.log("CURRENT_VERSION:"+CURRENT_VERSION);
+	if (CURRENT_VERSION < APP_VERSION){
+		alert("Update Wallpapers HD Application!");
+		try{
+			window.location.href="market://details?id=com.ketchapp.wallpaperheaven";
+			closeApp();
+		}catch(err){
+			console.log("Application could not be updated!");
+		}
+	}
+	navigator.splashscreen.hide();	
+	
+}
+
+function showAllWallpapers(showAllFlag,categoryNum){
+	
+	numOfPage = 0;
+	pageNumber = 0;//none page
+	imgToShow = -1;
+	
+
+	
+	if(showAllFlag){
+		wallpapers = wallpapers_shuffled;
+		window.localStorage.removeItem("categoryNumber");
+		var element = document.getElementById("cathegory_title");
+		element.innerHTML = "Ketch-App";
+	}
+	else{
+		wallpapers = getCathegoryWallpapers(categoryNum);
+		var element = document.getElementById("cathegory_title");
+		element.innerHTML = getCathegoryName(categoryNum);
+	}
+
+	numOfPage = Math.ceil(wallpapers.length / 4);
+	lineLog("sayfa sayisi: " + numOfPage);
+	var historyPage = window.localStorage.getItem("pageNumber");
+	
+	if (historyPage == null)
+		goToPage(Math.floor(Math.random() * numOfPage + 1));
+	else
+		goToPage(historyPage);
+	
+	
+}
+function cathegoryStarted(nth){
+	
+	window.localStorage.setItem("categoryNumber", nth);
+	
+	showAllWallpapers(false,nth);
+	//spinnerMain= new Spinner(opts);
+
+	//var previewPageTarget = document.getElementById("wholeSwipePage");
+	//spinnerMain.spin(previewPageTarget);
+	/*for(i=0;i<wallpapers.length;i++){
+		console.log("wp name i:"+i+" : " + getWallpaperName(i));
+	}
+	for(ii=0;ii<cathegories.length;ii++){
+		console.log("--------------CATHEGORY:"+ii+" " + getCathegoryName(ii)+"-----------------------");
+		len = getCathegoryWallpaperLength(ii);
+		console.log("cathegory:"+ii+ " length:"+len);
+		for(j=0;j<len;j++)
+		{
+			name = getCathegoryWallpapersName(ii,j);
+			console.log("cathegory i:"+ii+" j:"+j+ " length:"+len+ " name:"+name);
+		}
+	}*/
+
+}
+function findIndexIn2D(array,element){
+
+	result = -1;
+	for(i=0;i<array.length;i++){
+		if(array[i].indexOf(element) > -1)
+		{
+			result = i;
+			return result;
+		}
+		
+	}
+	return result;
+}
+function printArray(array){
+	for(i=0;i<array.length;i++){
+		for (j=0;j<array[i].length;j++){
+			console.log("array["+i+"]["+j+"]:"+array[i][j]);
+		}
+	}
+}
+function changeImage(img,source){
+    document.getElementById(source).src=img;
+}
+function addListener(){
+	document.addEventListener("deviceready", onDeviceReady, false);
+	//document.addEventListener('touchmove', preventDefault, false);
+	
+
+}
+function preventDefault(e) { e.preventDefault(); };
+
+</script>
+
+
+
+</head>
+
+<body onload="addListener();" style="height: 100%; overflow: hidden;">
+
+<header class="main" id="top_navbar" style="display:none;">
+			<h1 class="logo" ><a id="cathegory_title" href="#" class="ss-list">Ketch-App</a></h1>
+		<a href="#menu" class="menu-trigger ss-icon"><img class="menu-trigger ss-icon" src="css/images/apple-touch-icon.png"/> </a>
+		<nav>
+			<ul >
+				<div id="category_button">
+					<li><a href="#"  onclick='showAllWallpapers(true,0);'>All</a></li>
+				</div>
+			</ul>
+		</nav>
+	</header>
+
+	<div id="dummy_content"></div>
+
+		
+		<div id='slider3' class='swipe'>
+			<ul>
+				<li style='display: block'><div></div>
+				</li>
+				<li  style='display: block'>
+					<div id="wholeSwipePage">
+
+						<div id="container1" style="float:left;margin-top:4px;margin-bottom:2px;margin-right:2px;margin-left:4px;" >
+							<div id='selected_img1' onClick='setVar(1);' ></div>
+						</div>
+						
+						<div id="container2" style="float:right;margin-top:4px;margin-bottom:2px;margin-right:4px;margin-left:2px;" >
+							<div id='selected_img2' onClick='setVar(2);'  ></div>
+						</div>
+						
+						<div id="container3"  style="float:left;margin-top:2px;margin-bottom:4px;margin-right:2px;margin-left:4px;" >
+							<div id='selected_img3' onClick='setVar(3);' ></div>
+						</div>
+						
+						<div id="container4"  style="float:right;margin-top:2px;margin-bottom:4px;margin-right:4px;margin-left:2px;">
+							<div id='selected_img4' onClick='setVar(4);'  ></div>
+						</div>
+					</div>
+				</li>
+				<li style='display: block'><div></div>
+				</li>
+
+			</ul>
+		</div>
+		
+		
+		<div id="buttonlar"  style="visibility:hidden;margin-top:4px;margin-bottom:4px;margin-right:20px;margin-left:20px;">
+			<a href='#' id="leftButtonContainer" onclick='left();return false;'> <img id='leftButton' src='css/images/prev_button.png' onmouseover="this.src='css/images/prev_button_p.png'" onmouseout="this.src='css/images/prev_button.png'" style="float:left;"/></a> 
+			<a href='#' id="rightButtonContainer" onclick='right();return false;'> <img id='rightButton' src='css/images/next_button.png' onmouseover="this.src='css/images/next_button_p.png'" onmouseout="this.src='css/images/next_button.png'"style="float:right"/></a> 
+		</div>
+	
+
+	
+	
+	<script src='javascript/swipe.js'></script>
+	<script>
+		slider3 = new Swipe(document.getElementById('slider3'));
+		reset();	
+		var jPM = $.jPanelMenu({
+		menu: '#menu',
+		trigger: '.menu-trigger',
+		duration: 0});
+		XMLReq(rootURL+XML_FILE_CATHEGORY,true);
+		for(ii=0;ii<cathegories.length;ii++){
+			//console.log("--------------CATHEGORY:"+ii+" " + getCathegoryName(ii)+"-----------------------");
+			var element = document.getElementById("category_button");
+			element.innerHTML += "<li><a href='#' onClick='cathegoryStarted("+ii+")'>"+getCathegoryName(ii)+"</a></li>";
+		}
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+<meta name='viewport' content='target-densitydpi=device-dpi,  initial-scale=1.0, maximum-scale=1.0' />
+
+
+<title>Wallpaper Gallery</title>
+
+<link rel="stylesheet" type="text/css" href="css/dialog_box.css" />
+<link href='css/masterStyle.css' rel='stylesheet' id="stylesheet1" />
+
+
+<script src="javascript/spin.js"></script>
+<script src="javascript/spin.min.js"></script>
+<script type="text/javascript" charset="utf-8"
+	src="javascript\cordova.js"></script>
+<script type="text/javascript" charset="utf-8" src="javascript\test.js"></script>
+<script type="text/javascript" charset="utf-8"
+	src="javascript\app_functions.js"></script>
+
+<style>
+    body, html { overflow: hidden; }
+</style>
+<script type="text/javascript">
+
+
+document.addEventListener("deviceready", onDeviceReady2, false);
+lineLog("sayfa main viewerdayken");
+init2();
+XML_FILE_SHUFFLED = 'wallpapersV8_SHUFFLED_ALL_960x854.xml?rand='+Math.random(); //Requested xml File name
+XML_FILE_CATHEGORY= 'wallpapersV8_CATHEGORY_960x854.xml?rand='+Math.random(); 
+
+value = window.localStorage.getItem("selectedImg");
+value = parseInt(value);
+lineLog("value alma kismindan sonra gelen valueeeee!!!!!! " + value);
+
+imageNumber = value -1; // -1 means no image selected yet after 0 it means image selected
+rootURL = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/960x854/';
+filePath = ""; 
+fileName = ''; 
+url = '';
+SPEED = 260;
+var opts = {
+			  lines: 13, // The number of lines to draw
+			  length: 7, // The length of each line
+			  width: 4, // The line thickness
+			  radius: 10, // The radius of the inner circle
+			  corners: 1, // Corner roundness (0..1)
+			  rotate: 0, // The rotation offset
+			  color: '#FFF5F8', // #rgb or #rrggbb
+			  speed: 1, // Rounds per second
+			  trail: 60, // Afterglow percentage
+			  shadow: false, // Whether to render a shadow
+			  hwaccel: false, // Whether to use hardware acceleration
+			  className: 'spinner', // The CSS class to assign to the spinner
+			  zIndex: 2e9, // The z-index (defaults to 2000000000)
+			  top: 'auto', // Top position relative to parent in px
+			  left: 'auto' // Left position relative to parent in px
+			};
+			
+var spinner0 = new Spinner(opts);
+var spinner5 = new Spinner(opts);
+
+lineLog("mainviewer basladi");
+//imgList = new Array(  ); 
+var categoryNumber = window.localStorage.getItem("categoryNumber");
+if(categoryNumber == null){
+	XMLReq(rootURL+XML_FILE_SHUFFLED,false);
+}
+else{	
+	XMLReq(rootURL+XML_FILE_CATHEGORY,true);
+}
+
+/*
+for(var i = 0;i<wallpapers.length;i++)
+{
+	imgList.push(wallpapers[i].getElementsByTagName("URL")[0].childNodes[0].nodeValue);
+	lineLog("url" + i + ": " + imgList[i]);
+	
+}*/
+ 
+/*
+imgList.push('http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/deneme1.jpg');
+imgList.push('http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/deneme2.jpg');
+imgList.push('http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/deneme3.jpg');
+*/
+
+<!-- THE MAIN FUNCTION, NEEDS NO CHANGES --> 
+function goToImage(imgNum){
+	lineLog("goToImage IS CALLED AND IMGNUM: " + imgNum);
+	if(imgNum < 0)
+		imgNum = 0;// first image is set
+	if(imgNum < wallpapers.length && imgNum >= 0)
+	{
+		var target = document.getElementById('container0');
+		spinner0.spin(target);
+		
+		lineLog("if in icindeyim");
+		var imgObj=new Image();
+		imgObj.onload=function()
+		{				
+			
+			spinner0.stop();
+			
+			var element = document.getElementById('selected_img');
+			element.innerHTML =  "<img id='preImg0 'border='0' src='"+this.src +"' width='"+ document.getElementById('container0').style.width + "' height='"+ document.getElementById('container0').style.height +"' />"; 
+		}
+		imgObj.src = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/preview/' + getWallpaperName(imgNum);
+
+	}
+	else {
+		lineLog("no image is found! for image number: " + imgNum);
+		// Buraya dusmez !
+		alert("Technical Issue! Go to the Previous Page Please!");
+	}	
+	
+} 
+
+function nextImage(){
+	lineLog("NEXT PAGE IS CALLED");
+	if( (imageNumber + 1) >= wallpapers.length  || imageNumber + 1 <= 0){
+		lineLog("PAGING IS AT THE START PAGE or SET TO START PAGE");
+		imageNumber = -1;
+	}
+	if(imageNumber+1 < wallpapers.length)
+	{
+		imageNumber++;
+		goToImage(imageNumber);
+//		var element = document.getElementById('selected_img');
+//		element.innerHTML =  "<img border='0' src='"+imgList[imageNumber]+"' />";
+//		document.write("<a href='javascript:history.go(-1);'>previous</a>"); 
+//		document.write("<a href='javascript:nextImage();'> next</a>");
+//		document.write("<div id='theCanvas'><img border='0' src='"+imgList[imageNumber]+"' /></div>"); 
+	 
+	}
+	else {
+		lineLog("no image is found!");
+		// Buraya dusmez !
+		alert("Technical Issue! Go to the Previous Page Please!");
+	}	
+	
+} 
+function previousImage(){
+	lineLog("PREVIOUS PAGE IS CALLED");
+	if( imageNumber-1 < 0){
+		imageNumber = wallpapers.length; 
+		lineLog("FIRST IMAGE PREV IS CALLED");
+	}
+	if(imageNumber-1 >= wallpapers.length){
+		imageNumber = 1;
+	}
+	if(imageNumber-1 >= 0)
+	{
+		imageNumber--;
+		goToImage(imageNumber);
+		
+/*		lineLog("if in icindeyim");
+		var element = document.getElementById('selected_img');
+		element.innerHTML =  "<img border='0' src='"+imgList[imageNumber]+"' />";	 */
+	}
+	else {
+		lineLog("no image is found!");
+		// Buraya dusmez !
+		alert("Technical Issue! Go to the Previous Page Please!");
+
+	}
+		
+} 
+
+function initFolderNames() {
+	/*if (window.devicePixelRatio == 1.5) {
+		rootURL = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/960x800/';
+		XML_FILE = 'wallpapers1_960x800.xml';
+		lineLog("This is a high-density screen");
+	} 
+	else if(window.devicePixelRatio == 1)
+	{
+		rootURL = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/640x480/';
+		XML_FILE = 'wallpapers1_640x480.xml';
+		lineLog("medium size");
+	}
+	else if(window.devicePixelRatio == 2)
+	{
+		rootURL = 'http://bitnami-lampstack-07d6.cloudapp.net/wallpaperhd/960x854/';
+		XML_FILE = 'wallpapers1_960x854.xml';
+		lineLog("xhdpi size");
+	}
+	else if (window.devicePixelRatio == 0.75) {
+		lineLog("This is a low-density screen height in pixels" + BANNER_HEIGHT);
+	}*/
+	//lineLog("root and file name:"+rootURL + " xml:"+XML_FILE);
+	
+	
+}
+
+function XMLReq(xmlURL,cathegroyFlag){
+
+	initFolderNames();
+	
+	if (window.XMLHttpRequest)
+	 {// code for IE7+, Firefox, Chrome, Opera, Safari
+	  xmlhttp=new XMLHttpRequest();
+	 }
+	else
+	 {// code for IE6, IE5
+	  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	 }
+	xmlhttp.open("GET",xmlURL,false);
+	xmlhttp.send();
+	xmlDoc=xmlhttp.responseXML; 
+	if(cathegroyFlag){
+		cathegories = xmlDoc.getElementsByTagName("CATHEGORY");
+		wallpapers = getCathegoryWallpapers(categoryNumber);
+	}
+	else{
+		wallpapers=xmlDoc.getElementsByTagName("WALLPAPER");
+		
+	}
+}
+
+function getCathegoryWallpapers(i)// kullanilmiyor ama url i'ninci urlyi verir
+{
+	try{
+		CATHEGORIEZED_WPS=(cathegories[i].getElementsByTagName("WALLPAPER"));
+	}catch(err){
+		console.log("cathegory not found:i:"+i);
+	}
+	return CATHEGORIEZED_WPS;
+
+}
+function getWallpaperURL(i)// kullanilmiyor ama url i'ninci urlyi verir
+{
+	url=(wallpapers[i].getElementsByTagName("URL")[0].childNodes[0].nodeValue);
+	return url;
+
+}
+
+function getWallpaperName(i)
+{
+	fileName=(wallpapers[i].getElementsByTagName("FILENAME")[0].childNodes[0].nodeValue);
+	return fileName;
+}
+var baslangic = 0;
+var bitis = 0;
+var sure = 0;
+
+function sureHesapla(){
+	var d = new Date();
+	bitis = d.getTime();
+	sure = bitis - baslangic;
+	
+	lineLog("set as wallpaper suresi:"+sure)
+}
+
+function onSuccessFile(fileSystem) {
+	
+	  //console.log("filesystem got");
+	  filePath = fileSystem.root.fullPath+"/wallpaper/w1.jpg";
+	  
+	 // console.log("fileeeeeeee?"+fileSystem.root.fullPath);
+	  setAsWallpaper();	
+}
+
+
+function onErrorFile(evt){
+	//console.log(evt.target.error.code);
+	alert("Something went wrong while downloading wallpaper check sdcard space!");
+}
+
+
+function setAsWallpaperHelper(){
+
+	 window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onSuccessFile, onErrorFile);
+}
+
+function setAsWallpaper(){
+	getWallpaperName(imageNumber);
+	url = getWallpaperURL(imageNumber);
+//	saveImage(url);
+	lineLog("setaswallpaper download URL baslangicta: "+url);
+
+	var fileTransfer = new FileTransfer();
+	
+	
+	darkenPage();
+	var target = document.getElementById('dialog-mask-white');
+	spinner5.spin(target);//app functionsin icinde stop ediliyor
+	drawszlider(30,8);
+	fileTransfer.download(
+		  	url,
+		    filePath,
+		    function(entry) {
+		        lineLog("download complete: " + entry.fullPath);
+				var target = document.getElementById('container0');
+				var d = new Date();
+				baslangic = d.getTime();
+		        callNativePlugin(filePath);
+		     	//lineLog("SETTED WALLPAPER DEGISTI!!!!");
+		    },
+		    function(error) {
+		        console.log("download error source " + error.source);
+		        console.log("download error target " + error.target);
+		        console.log("upload error code" + error.code);
+		    }
+	);
+		
+	fileTransfer.onprogress = function(progressEvent) {
+				
+			if (progressEvent.lengthComputable) {
+				//console.log("LOADING INEN "+progressEvent.loaded);
+				//console.log("LOADING TOTAL "+progressEvent.total);
+				//loadingStatus.setPercentage(progressEvent.loaded / progressEvent.total);
+				drawszlider(progressEvent.total,progressEvent.loaded/2);
+			} else {
+			
+				//loadingStatus.increment();
+			}
+		};
+
+
+}
+
+function saveImage(url){
+	  
+	   lineLog("download URL baslangicta: "+url);
+		//var filePath = "/sdcard/wallpaper/w1.jpg"
+		var fileTransfer = new FileTransfer();
+		
+		fileTransfer.download(
+		    url,
+		    filePath,
+		    function(entry) {
+		        lineLog("download complete: " + entry.fullPath);
+		    },
+		    function(error) {
+				alert("Check your connection please!");
+		        lineLog("download error source " + error.source);
+		        lineLog("download error target " + error.target);
+		        lineLog("upload error code" + error.code);
+		    }
+		);
+			
+}
+
+function right(){
+
+	slider3.slide(2,SPEED);
+	//window.setTimeout(reset,500);
+		
+}
+function left(){
+
+		slider3.slide(0,SPEED);
+		//window.setTimeout(reset,500);
+			
+}
+function reset(){
+	
+	slider3.slide(1,0);
+}
+//sliding + nextimages
+function nextView(){
+
+	nextImage();
+}
+//sliding + previmages
+function prevView(){
+	lineLog("PREVIOUS VIEW IS CALLED!!!!!!!!!!!!!!!!!!!!");
+	previousImage();
+}
+
+function clearAll(){
+	lineLog("clear img is called for img ");
+	window.stop();
+	var element = document.getElementById('selected_img');
+	element.innerHTML =  "<img border='0' src='' /> "; 
+		
+}
+
+function drawszlider(ossz, meik){
+    var szazalek=Math.round(meik/ossz) * 100;
+    document.getElementById("szliderbar").style.width=szazalek+'%';
+    document.getElementById("szazalek").innerHTML=szazalek+'%';
+}
+
+function darkenPage() {
+	if(!document.getElementById('dialog-mask-white')) {
+		dialogmask = document.createElement('div');
+		dialogmask.id = 'dialog-mask-white';
+		document.body.appendChild(dialogmask);
+	}
+	else {
+	 dialogmask = document.getElementById('dialog-mask-white');
+	 dialogmask.style.visibility = "visible";
+	}
+	var element = document.getElementById('dialog-mask-white');
+	//PROGRESSBAR
+	element.innerHTML = '<div id="szlider"><div id="szliderbar"></div><div id="szazalek"></div></div>';
+}
+function removeDarken(){
+	if(document.getElementById('dialog-mask-white')) {
+		dialogmask = document.getElementById('dialog-mask-white');
+		//dialogmask.style.visibility = "hidden";
+		dialogmask.parentNode.removeChild(dialogmask);
+	}
+}
+
+function getScreenSize(){
+	var WIDTH = screen.width;
+	var HEIGHT = screen.height;
+}
+
+function checkAdReceived(){
+	window.localStorage.setItem("checkAd", "true");
+}
+
+function clearAdReceived(){
+	window.localStorage.setItem("checkAd", "false");
+	lineLog("cleared");
+}
+
+function setDesignSizeNew(){
+	
+	var DENSITY_RATIO = window.devicePixelRatio ;
+	var BANNER_HEIGHT = 50 * DENSITY_RATIO;
+	var BUTTON_HEIGHT = 30 * DENSITY_RATIO;   //dummy burasi css'den alinip set edilecek yani imajin boyu kadar olacak
+	var BUTTON_WIDTH  = 40 * DENSITY_RATIO;
+	var BUTTON_WIDTH_LARGE  = 60 * DENSITY_RATIO;
+	var TOP_NAV_BAR   = 50 * DENSITY_RATIO;
+	
+	var SCREEN_HEIGHT = window.innerHeight ; 
+	var WIDTH         = window.innerWidth ;
+	var HEIGHT        = SCREEN_HEIGHT - BANNER_HEIGHT - BUTTON_HEIGHT ;
+	var screen_resolution;
+	var rotation;
+	if  (HEIGHT > WIDTH) {
+		rotation = "PORTRAIT";
+		temp1 = Math.round(1 * (WIDTH - 40 ));//width - imaj margin
+		temp2 =Math.round(temp1 / 1.2);// height
+	}
+	else{
+		rotation = "LANDSCAPE";
+		temp1 = Math.round(1 * (HEIGHT - 40 ));//width - imaj margin
+		temp2 =Math.round(temp1 / 1.2);// height
+	}
+	
+	
+	lineLog("HEIGHT "+ HEIGHT + " WIDTH "+ WIDTH + " BANNERHEIGHT: " +BANNER_HEIGHT+ " BUTTON_HEIGHT:" +BUTTON_HEIGHT );
+	
+	/*if (window.devicePixelRatio == 1.5) {
+		alert("This is a high-density screen and banner height in pixels" + BANNER_HEIGHT);
+		screen_resolution = 'hdpi';
+		
+	} 
+	else if(window.devicePixelRatio == 1)
+	{
+		alert("medium size");
+		screen_resolution = 'mdpi';
+	}
+	else if(window.devicePixelRatio == 2)
+	{
+		alert("xhdpi size");
+		screen_resolution = 'xhdpi';
+	}
+	else if (window.devicePixelRatio == 0.75) {
+		alert("This is a low-density screen height in pixels" + BANNER_HEIGHT);
+		screen_resolution = 'ldpi';
+	}*/
+
+	/*if (screen_resolution === 'hdpi'){
+	}
+	else if (screen_resolution === 'mdpi'){
+	}
+	else if (screen_resolution === 'xhdpi'){
+	}
+	else if (screen_resolution === 'ldpi'){
+	}
+	else {
+	}*/
+	
+	
+	
+	document.getElementById('container0').style.width =  temp1 +'px';
+	document.getElementById('container0').style.height = temp2 +'px';
+	
+	lineLog("WIDTH  container0 "+ document.getElementById('container0').style.width);
+	lineLog("HEIGHT container0 "+ document.getElementById('container0').style.height);
+	
+	temp1 =Math.round(BUTTON_WIDTH) ;
+	temp2 =Math.round(BUTTON_HEIGHT);
+	temp3 = Math.round(BUTTON_WIDTH_LARGE) ;
+	
+	document.getElementById('leftButton').style.width      = temp1 +'px';
+	document.getElementById('leftButton').style.height     = temp2 +'px';
+	
+	document.getElementById('rightButton').style.width =  temp1 +'px';
+	document.getElementById('rightButton').style.height = temp2 +'px';
+	
+	document.getElementById('set_as_wp_img').style.width =  temp3 +'px';
+	document.getElementById('set_as_wp_img').style.height = temp2 +'px';
+	
+	document.getElementById('back_button_img').style.width =  temp3 +'px';
+	document.getElementById('back_button_img').style.height = temp2 +'px';
+	
+	//temp1 = Math.round(TOP_NAV_BAR);
+	//document.getElementById('cathegory_title').style.lineHeight      = temp1 +'px';
+	//document.getElementById('cathegory_title').style.fontSize       = "1.2em";
+	//document.getElementById('top_navbar').style.height               = temp1 +'px';
+	//document.getElementById('dummy_content').style.paddingTop        = temp1 +'px';
+	
+	//document.getElementById('top_navbar').style.display              ="block";
+	document.getElementById('buttonlar').style.visibility='visible';
+	
+}
+
+function initPreview(){
+	setDesignSizeNew();
+	goToImage(imageNumber);
+}
+
+function changeImage(img,source){
+    document.getElementById(source).src=img;
+}
+
+function getCathegoryName(i)// i ninci kategoriyi verir
+{
+	try{
+		CATHEGORIEZED_WPS=(cathegories[i].getAttribute('title'));
+	}catch(err){
+		console.log("cathegory filename not found:i:"+i);
+	}
+	return CATHEGORIEZED_WPS;
+
+}
+</script>
+
+</head>
+
+<body>
+
+
+<div id="dummy_content"></div>
+	<div id='slider3' class='swipe'>
+		<ul>
+			<li style='display: block'><div></div></li>
+			<li style='display: block'>
+				<div  id="container0" style="float:left;margin-top:10px;margin-bottom:10px;margin-right:20px;margin-left:20px;">
+					<div id='selected_img'></div>
+				</div>
+			</li>
+			<li style='display: block'><div></div></li> 
+
+		</ul>
+	</div>
+	<div id="buttonlar" style="visibility:hidden;" >
+	  <div id="leftButton2"> <a href='#'  onclick='left();return false;'><img id='leftButton' src='css/images/prev_button.png' onmouseover="this.src='css/images/prev_button_p.png'" onmouseout="this.src='css/images/prev_button.png'" /></div>
+        <div id="rightbutton2"><a href='#'  onClick='right();return false;'><img id='rightButton' src='css/images/next_button.png' onmouseover="this.src='css/images/next_button_p.png'" onmouseout="this.src='css/images/next_button.png'"/></a></div>
+       <div id="set_wp"> <a href='javascript:setAsWallpaperHelper();'> <img id='set_as_wp_img' src='css/images/set_as_wp.png' /> </a></div>
+      <div id="back_button"> <a href='javascript:onBackKeyDown2();'> <img id='back_button_img' src='css/images/back_button.png' /> </a></div>
+	</div>
+	
+	<script src='javascript/swipe.js'></script>
+	<script>
+var slider3 = new Swipe(document.getElementById('slider3'));
+reset();
+
+</script>
+
+</body>
+</html>
